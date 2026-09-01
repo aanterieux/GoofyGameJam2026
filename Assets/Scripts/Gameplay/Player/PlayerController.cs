@@ -3,44 +3,55 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    [Header("Movement")]
+    [Header("- Movement -")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 7.5f;
     [SerializeField] private float deceleration = 5f;
 
-    [Header("Rotation")]
+    [Header("- Rotation -")]
     [SerializeField] private float rotationSpeed = 2f;
     [SerializeField] private bool invertHAxis = false;
 
-    [Header("Collision")]
-    [SerializeField] private float sphereCastRadius = 0.5f;
-    [SerializeField] private float sphereCastDistance = 0.25f;
+    [Header("- Collisions -")]
+    [Header("- Ground")]
+    [SerializeField] private float maxSlopeAngle = 30f;
+    [SerializeField] private float groundSphereRadius = 0.5f;
+    [SerializeField] private float groundRayMaxDistance = 0.25f;
     [SerializeField] private LayerMask notJumpableLayer;
 
-    private Mouse mouse = null;
+    [Header("- Stairs")]
+    [SerializeField] [Tooltip(
+        "Represents the X and Z components respectively.\n" +
+        "Y component will be equal to half of stepSize.")]    
+     private Vector2 stairsBoxHalfExtents = Vector2.one;
+    [SerializeField] [Range(0f, 0.75f)]
+     private float stepSize = 0.3f;
+    [SerializeField] private float stairsRayMaxDistance = 0.75f;
+    [SerializeField] private LayerMask notClimbableLayer;
+
     private Rigidbody rb = null;
-    private Ray ray = new Ray();
+    private Ray groundRay = new Ray();
+    private Ray stairsRay = new Ray();
     private Vector3 movement = Vector3.zero;
     private bool jumpTrigger = false;
     private bool isAirborne = false;
-    private bool canJump = false;
 
     private void Awake()
     {
-        mouse = Mouse.current;
         rb = GetComponent<Rigidbody>();
 
-        ray.direction = Vector3.down;
+        groundRay.direction = Vector3.down;
     }
 
     private void FixedUpdate()
     {
         CheckGrounding();
-
-        if (canJump)
+        CheckStairs();
+        
+        if (jumpTrigger && !isAirborne)
         {
             Jump();
-            canJump = false;
+            jumpTrigger = false;
         }
 
         Move();
@@ -54,13 +65,13 @@ public class PlayerController : MonoBehaviour
 
     private void Rotate()
     {
-        if (mouse == null)
+        if (!InputManager.MouseConnected)
         {
             Debug.LogWarning("Cannot rotate: 'mouse' is null.");
             return;
         }
 
-        Vector2 rotationAxes = mouse.delta.ReadValue();
+        Vector2 rotationAxes = InputManager.MouseDelta;
         float horizontal = rotationAxes.x * ((invertHAxis) ? -1f : 1f);
 
         rotationAxes.x = 0f;
@@ -105,35 +116,53 @@ public class PlayerController : MonoBehaviour
 
     private void CheckGrounding()
     {
-        ray.origin = transform.position;
+        groundRay.origin = transform.position;
 
-        // When on ground
-        if (Physics.SphereCast(
-                ray,
-                sphereCastRadius,
+        // When in the air or
+        // on a non-jumpable surface
+        if (!Physics.SphereCast(
+                groundRay,
+                groundSphereRadius,
                 out RaycastHit info,
-                sphereCastDistance,
+                groundRayMaxDistance,
                 ~notJumpableLayer
             ))
         {
-            isAirborne = false;
-        }
-        else
-        {
-            // When in the air
-            if (info.collider == null ||
-                info.distance == 0f)
-            {
-                isAirborne = true;
-            }
-            // When on a non-jumpable surface
-            else if (info.transform.gameObject.layer == notJumpableLayer)
-            {
-                isAirborne = false;
-            }
+            isAirborne = true;
+            return;
         }
 
-        canJump = (jumpTrigger && !isAirborne);
+        // When on ground
+        float groundDot = Vector3.Dot(info.normal, Vector3.up);
+        float minGroundDot = Mathf.Cos(maxSlopeAngle * Mathf.Deg2Rad);
+
+        isAirborne = (groundDot < minGroundDot);
+    }
+
+    private void CheckStairs()
+    {
+        Vector3 feetPos =
+            transform.position
+            - 0.5f * Vector3.up;
+
+        stairsRay.origin =
+            feetPos
+            + stepSize * Vector3.up;
+        stairsRay.direction = transform.forward;
+        stairsBoxHalfExtents.y = 0.5f * stepSize;
+
+        if (Physics.BoxCast(
+                stairsRay.origin,
+                stairsBoxHalfExtents,
+                stairsRay.direction,
+                out RaycastHit info,
+                Quaternion.identity,
+                stairsRayMaxDistance,
+                ~notJumpableLayer
+            ))
+        {
+            Debug.Log(info.transform.gameObject.name);
+        }
     }
 
     private void Jump()
@@ -142,6 +171,8 @@ public class PlayerController : MonoBehaviour
         Vector3 velocity = rb.linearVelocity;
         velocity.y = jumpForce;
         rb.linearVelocity = velocity;
+
+        jumpTrigger = false;
     }
 
     private void OnMove_Template(in InputAction.CallbackContext _context, ref float _axis)
@@ -173,6 +204,9 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        jumpTrigger = (_context.phase == InputActionPhase.Performed);
+        if (_context.phase == InputActionPhase.Performed)
+        {
+            jumpTrigger = true;
+        }
     }
 }
