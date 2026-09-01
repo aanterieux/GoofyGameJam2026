@@ -12,26 +12,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float rotationSpeed = 2f;
     [SerializeField] private bool invertHAxis = false;
 
-    [Header("- Collisions -")]
-    [Header("- Ground")]
+    [Header("- Ground detection -")]
     [SerializeField] private float maxSlopeAngle = 30f;
-    [SerializeField] private float groundSphereRadius = 0.5f;
-    [SerializeField] private float groundRayMaxDistance = 0.25f;
+    [SerializeField] private float groundCheckRadius = 0.3f;
+    [SerializeField] private float groundCheckDistance = 0.15f;
     [SerializeField] private LayerMask notJumpableLayer;
 
-    [Header("- Stairs")]
-    [SerializeField] [Tooltip(
-        "Represents the X and Z components respectively.\n" +
-        "Y component will be equal to half of stepSize.")]    
-     private Vector2 stairsBoxHalfExtents = Vector2.one;
-    [SerializeField] [Range(0f, 0.75f)]
-     private float stepSize = 0.3f;
-    [SerializeField] private float stairsRayMaxDistance = 0.75f;
-    [SerializeField] private LayerMask notClimbableLayer;
-
     private Rigidbody rb = null;
+    private CapsuleCollider capsule = null;
     private Ray groundRay = new Ray();
-    private Ray stairsRay = new Ray();
     private Vector3 movement = Vector3.zero;
     private bool jumpTrigger = false;
     private bool isAirborne = false;
@@ -39,6 +28,7 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        capsule = GetComponent<CapsuleCollider>();
 
         groundRay.direction = Vector3.down;
     }
@@ -46,12 +36,10 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         CheckGrounding();
-        CheckStairs();
-        
+
         if (jumpTrigger && !isAirborne)
         {
             Jump();
-            jumpTrigger = false;
         }
 
         Move();
@@ -116,63 +104,38 @@ public class PlayerController : MonoBehaviour
 
     private void CheckGrounding()
     {
-        groundRay.origin = transform.position;
+        Vector3 center = transform.TransformPoint(capsule.center);
+        float halfHeight = capsule.height * 0.5f;
+        float bottomOffset = Mathf.Max(halfHeight - capsule.radius, 0f);
+        Vector3 bottom = center + Vector3.down * bottomOffset;
 
-        // When in the air or
-        // on a non-jumpable surface
-        if (!Physics.SphereCast(
-                groundRay,
-                groundSphereRadius,
-                out RaycastHit info,
-                groundRayMaxDistance,
-                ~notJumpableLayer
-            ))
+        bool isGrounded = Physics.SphereCast(
+            bottom + Vector3.up * 0.05f,
+            groundCheckRadius,
+            Vector3.down,
+            out RaycastHit hit,
+            groundCheckDistance,
+            ~notJumpableLayer,
+            QueryTriggerInteraction.Ignore
+        );
+
+        if (!isGrounded)
         {
             isAirborne = true;
             return;
         }
 
-        // When on ground
-        float groundDot = Vector3.Dot(info.normal, Vector3.up);
+        float groundDot = Vector3.Dot(hit.normal, Vector3.up);
         float minGroundDot = Mathf.Cos(maxSlopeAngle * Mathf.Deg2Rad);
 
         isAirborne = (groundDot < minGroundDot);
     }
 
-    private void CheckStairs()
-    {
-        Vector3 feetPos =
-            transform.position
-            - 0.5f * Vector3.up;
-
-        stairsRay.origin =
-            feetPos
-            + stepSize * Vector3.up;
-        stairsRay.direction = transform.forward;
-        stairsBoxHalfExtents.y = 0.5f * stepSize;
-
-        if (Physics.BoxCast(
-                stairsRay.origin,
-                stairsBoxHalfExtents,
-                stairsRay.direction,
-                out RaycastHit info,
-                Quaternion.identity,
-                stairsRayMaxDistance,
-                ~notJumpableLayer
-            ))
-        {
-            Debug.Log(info.transform.gameObject.name);
-        }
-    }
-
     private void Jump()
     {
-        // When jumping from a jumpable surface
         Vector3 velocity = rb.linearVelocity;
         velocity.y = jumpForce;
         rb.linearVelocity = velocity;
-
-        jumpTrigger = false;
     }
 
     private void OnMove_Template(in InputAction.CallbackContext _context, ref float _axis)
@@ -204,9 +167,6 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        if (_context.phase == InputActionPhase.Performed)
-        {
-            jumpTrigger = true;
-        }
+        jumpTrigger = (_context.performed);
     }
 }
