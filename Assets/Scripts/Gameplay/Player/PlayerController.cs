@@ -4,19 +4,21 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [Header("- Movement -")]
-    [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private float jumpForce = 7.5f;
+    [SerializeField] private float baseMoveSpeed = 4f;
+    [SerializeField] private float runSpeedMultiplier = 1.75f;
+    [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float deceleration = 5f;
+    [SerializeField] private bool toggleToRun = true;
 
     [Header("- Rotation -")]
-    [SerializeField] private float rotationSpeed = 2f;
+    [SerializeField] private float rotationSpeed = 4f;
     [SerializeField] private bool invertHAxis = false;
 
     [Header("- Ground detection -")]
     [SerializeField] private float maxSlopeAngle = 30f;
     [SerializeField] private float groundCheckRadius = 0.3f;
     [SerializeField] private float groundCheckDistance = 0.15f;
-    [SerializeField] private LayerMask notJumpableLayer;
+    [SerializeField] private LayerMask notJumpableLayer = 3;
 
     private Rigidbody rb = null;
     private CapsuleCollider capsule = null;
@@ -24,6 +26,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 movement = Vector3.zero;
     private bool jumpTrigger = false;
     private bool isAirborne = false;
+    private bool isRunning = false;
 
     private void Awake()
     {
@@ -59,13 +62,13 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        Vector2 rotationAxes = InputManager.MouseDelta;
-        float horizontal = rotationAxes.x * ((invertHAxis) ? -1f : 1f);
+        Vector2 rotationAxis = InputManager.MouseDelta;
+        float horizontal = rotationAxis.x * ((invertHAxis) ? -1f : 1f);
 
-        rotationAxes.x = 0f;
-        rotationAxes.y = horizontal;
+        rotationAxis.x = 0f;
+        rotationAxis.y = horizontal;
 
-        transform.Rotate(Time.deltaTime * rotationSpeed * rotationAxes);
+        transform.Rotate(Time.deltaTime * rotationSpeed * rotationAxis);
     }
 
     private void Move()
@@ -87,14 +90,19 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
+        // When moving
         // Avoid moving faster diagonally
         movement = Vector3.ClampMagnitude(movement, 1f);
 
+        float moveSpeed =
+            baseMoveSpeed *
+                ((isRunning)
+                    ? runSpeedMultiplier
+                    : 1f);
         // Convert move direction from local space to
         // global space for accurate Rigidbody movement
         Vector3 movementVelocity =
-            transform.TransformDirection(movement)
-            * moveSpeed;
+            moveSpeed * transform.TransformDirection(movement);
         Vector3 velocity = rb.linearVelocity;
         velocity.x = movementVelocity.x;
         velocity.z = movementVelocity.z;
@@ -125,10 +133,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        float groundDot = Vector3.Dot(hit.normal, Vector3.up);
-        float minGroundDot = Mathf.Cos(maxSlopeAngle * Mathf.Deg2Rad);
-
-        isAirborne = (groundDot < minGroundDot);
+        isAirborne = IsTooSteep(hit.normal, maxSlopeAngle);
     }
 
     private void Jump()
@@ -138,9 +143,18 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = velocity;
     }
 
+    private bool IsTooSteep(in Vector3 _groundNormal, in float _referenceAngle)
+    {
+        float groundDot = Vector3.Dot(_groundNormal, Vector3.up);
+        float minGroundDot = Mathf.Cos(_referenceAngle * Mathf.Deg2Rad);
+
+        return (groundDot < minGroundDot);
+    }
+
+
     private void OnMove_Template(in InputAction.CallbackContext _context, ref float _axis)
     {
-        if (_context.phase == InputActionPhase.Canceled)
+        if (_context.canceled)
         {
             _axis = 0f;
             return;
@@ -168,5 +182,20 @@ public class PlayerController : MonoBehaviour
         }
 
         jumpTrigger = (_context.performed);
+    }
+
+    public void OnRun(InputAction.CallbackContext _context)
+    {
+        if (toggleToRun)
+        {
+            if (_context.started)
+            {
+                isRunning = !isRunning;
+            }
+
+            return;
+        }
+
+        isRunning = (_context.performed);
     }
 }
