@@ -18,11 +18,11 @@ public class PlayerStatManager : MonoBehaviour
     [SerializeField] private float pickupReach = 5f;
     [SerializeField] private float throwForce = 10f;
 
-    public float DistanceAttackRange
+    public float DistanceAttackReach
     {
         get => rangedAttackReach;
     }
-    public float MeleeAttackRange
+    public float MeleeAttackReach
     {
         get => meleeAttackReach;
     }
@@ -35,7 +35,7 @@ public class PlayerStatManager : MonoBehaviour
         get => meleeAttackDamage;
     }
 
-    public float PickupRange
+    public float PickupReach
     {
         get => pickupReach;
     }

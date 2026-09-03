@@ -8,4 +8,9 @@ public class PlayerInventory : MonoBehaviour
     {
         get => currentItem;
     }
+
+    public void SetCurrentItem(Item _newItem)
+    {
+        currentItem = _newItem;
+    }
 }

@@ -15,8 +15,10 @@ GameObject:
   - component: {fileID: 2217192824100530150}
   - component: {fileID: 5065982259899600055}
   - component: {fileID: 8729564242316234040}
+  - component: {fileID: 7095469421230724018}
   - component: {fileID: 8264782154850830273}
-  m_Layer: 0
+  - component: {fileID: 9056599867820692192}
+  m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -236,16 +238,40 @@ MonoBehaviour:
     m_ActionId: 719f6d25-31ae-4361-8738-be2a252f889c
     m_ActionName: 'Movement/MoveX[/Keyboard/a,/Keyboard/d]'
   - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: e12ee6b8-84fc-46cc-b02d-7c43330de9c5
-    m_ActionName: 'Actions/Aim[/Mouse/rightButton]'
+      m_Calls:
+      - m_Target: {fileID: 7095469421230724018}
+        m_TargetAssemblyTypeName: PlayerActionManager, Assembly-CSharp
+        m_MethodName: OnPrimaryAction
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 5d36b838-66ca-48c1-91ff-7213ebc0aca6
+    m_ActionName: 'Gameplay/PrimaryAction[/Mouse/leftButton]'
   - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 4710c3b3-f882-4c35-9a29-251560beda53
-    m_ActionName: 'Actions/Shoot[/Mouse/leftButton]'
-  m_NeverAutoSwitchControlSchemes: 0
+      m_Calls:
+      - m_Target: {fileID: 7095469421230724018}
+        m_TargetAssemblyTypeName: PlayerActionManager, Assembly-CSharp
+        m_MethodName: OnSecondaryAction
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: d037064b-f960-4a1e-82b4-e00fce2522c2
+    m_ActionName: 'Gameplay/SecondaryAction[/Mouse/rightButton]'
+  m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: Keyboard and Mouse
-  m_DefaultActionMap: Movement
+  m_DefaultActionMap: Gameplay
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
 --- !u!114 &8729564242316234040
@@ -273,6 +299,19 @@ MonoBehaviour:
   notJumpableLayer:
     serializedVersion: 2
     m_Bits: 8
+--- !u!114 &7095469421230724018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 204657727352569076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e5a503f68ee4634daf1ffff4f8bfd4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerActionManager
+  camTransform: {fileID: 1969782827780861615}
 --- !u!114 &8264782154850830273
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -294,7 +333,19 @@ MonoBehaviour:
   meleeAttackCooldown: 0.5
   meleeAttackDamage: 2
   pickupReach: 5
-  throwForce: 10
+  throwForce: 3
+--- !u!114 &9056599867820692192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 204657727352569076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75463791ed0aab34c8688aa9ad4ddab3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
 --- !u!1 &1264902208986109215
 GameObject:
   m_ObjectHideFlags: 0
@@ -308,7 +359,7 @@ GameObject:
   - component: {fileID: 4797032197626006069}
   - component: {fileID: 6665445622565862841}
   - component: {fileID: 6602751196786580440}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Main Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -446,5 +497,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerViewController
   rotationSpeed: 6
-  maxRotationAngle: 45
+  maxRotationAngle: 60
   invertVAxis: 0

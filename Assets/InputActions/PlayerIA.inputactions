@@ -3,7 +3,7 @@
     "name": "PlayerIA",
     "maps": [
         {
-            "name": "Movement",
+            "name": "Gameplay",
             "id": "eaf8d1ac-5a66-4967-a61d-0067ec59aeda",
             "actions": [
                 {
@@ -37,6 +37,24 @@
                     "name": "Run",
                     "type": "Button",
                     "id": "468eb500-4ae0-49e2-987f-efda8aac926b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PrimaryAction",
+                    "type": "Button",
+                    "id": "5d36b838-66ca-48c1-91ff-7213ebc0aca6",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SecondaryAction",
+                    "type": "Button",
+                    "id": "d037064b-f960-4a1e-82b4-e00fce2522c2",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -91,11 +109,33 @@
                 {
                     "name": "",
                     "id": "212ca7be-e34b-4925-83aa-d157c5c43fb9",
-                    "path": "<Keyboard>/backquote",
+                    "path": "<Keyboard>/leftAlt",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard and Mouse",
                     "action": "Run",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a2403c91-ef3b-48ac-aaa7-d3565b7a9178",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard and Mouse",
+                    "action": "PrimaryAction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4103a1a4-6b15-4c99-8747-66c8188e4d0b",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard and Mouse",
+                    "action": "SecondaryAction",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -133,54 +173,6 @@
                     "isPartOfComposite": true
                 }
             ]
-        },
-        {
-            "name": "Actions",
-            "id": "f6ac4f3e-a454-442d-8002-908a7f5284d4",
-            "actions": [
-                {
-                    "name": "Aim",
-                    "type": "Button",
-                    "id": "e12ee6b8-84fc-46cc-b02d-7c43330de9c5",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Shoot",
-                    "type": "Button",
-                    "id": "4710c3b3-f882-4c35-9a29-251560beda53",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                }
-            ],
-            "bindings": [
-                {
-                    "name": "",
-                    "id": "10a79cff-6541-483a-8e58-d42a282b2765",
-                    "path": "<Mouse>/leftButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard and Mouse",
-                    "action": "Shoot",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "8a05230b-ae66-4d29-a260-e3bfacd4040e",
-                    "path": "<Mouse>/rightButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard and Mouse",
-                    "action": "Aim",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                }
-            ]
         }
     ],
     "controlSchemes": [
@@ -195,17 +187,6 @@
                 },
                 {
                     "devicePath": "<Mouse>",
-                    "isOptional": false,
-                    "isOR": false
-                }
-            ]
-        },
-        {
-            "name": "Gamepad",
-            "bindingGroup": "Gamepad",
-            "devices": [
-                {
-                    "devicePath": "<Gamepad>",
                     "isOptional": false,
                     "isOR": false
                 }

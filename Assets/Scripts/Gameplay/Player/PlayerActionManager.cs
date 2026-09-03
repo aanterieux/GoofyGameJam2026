@@ -3,6 +3,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerActionManager : MonoBehaviour
 {
+    [SerializeField] private Transform camTransform = null;
+
     private PlayerStatManager statManager = null;
     private PlayerInventory inventory = null;
     private Ray ray = new Ray();
@@ -34,14 +36,16 @@ public class PlayerActionManager : MonoBehaviour
     }
 
 
-    private void PickupItem(Throwable _pickableItem)
+    private void PickupItem(Holdable _pickableItem)
     {
-
+        inventory.SetCurrentItem(_pickableItem);
+        _pickableItem.NotifyHold(camTransform);
     }
 
-    private void LetGoOfItem(Throwable _pickableItem)
+    private void DropItem(Holdable _pickableItem)
     {
-
+        inventory.SetCurrentItem(null);
+        _pickableItem.NotifyDrop();
     }
 
     private void ConsumeItem(Consumable _consumableItem)
@@ -49,9 +53,16 @@ public class PlayerActionManager : MonoBehaviour
 
     }
 
-    private void ThrowItem(Throwable _throwableItem, in float _throwForce)
+    private void ThrowItem(Holdable _throwableItem, float _throwForce)
     {
+        _throwableItem.NotifyThrow(_throwForce);
+    }
 
+
+    private void UpdateRayOriginAndDirection()
+    {
+        ray.origin = camTransform.position;
+        ray.direction = camTransform.forward;
     }
 
 
@@ -61,11 +72,25 @@ public class PlayerActionManager : MonoBehaviour
     //   - Throw picked up object
     public void OnPrimaryAction(InputAction.CallbackContext _context)
     {
-        Item heldItem = inventory.CurrentItem;
+        UpdateRayOriginAndDirection();
+
+        bool nothingFound =
+            !Physics.Raycast(
+                ray,
+                out RaycastHit info,
+                statManager.PickupReach
+            );
+        Transform itemTransform = info.transform;
+
+        if (nothingFound || itemTransform == null)
+        {
+            return;
+        }
+
+        Item item = itemTransform.GetComponent<Item>();
 
         // When not holding anything (bare hands)
-        // => Throw fists
-        if (heldItem == null)
+        if (item == null)
         {
             if (_context.started)
             {
@@ -76,36 +101,35 @@ public class PlayerActionManager : MonoBehaviour
         }
 
         // When holding a gun
-        // => Shoot
-        if (heldItem is Gun)
+        if (item is Gun)
         {
             if (_context.performed)
             {
-                (heldItem as Gun).StartShooting();
+                (item as Gun).StartShooting();
             }
-            
+
             return;
         }
 
         // When holding a consumable object
-        // => Consume it
-        if (heldItem is Consumable)
+        if (item is Consumable)
         {
             if (_context.started)
             {
-                ConsumeItem(heldItem as Consumable);
+                ConsumeItem(item as Consumable);
             }
 
             return;
         }
 
         // When holding any other object
-        // => Throw it
-        if (heldItem is Throwable)
+        if (item is Holdable)
         {
-            if (_context.started)
+            Holdable throwable = (item as Holdable);
+
+            if (_context.started && throwable.IsHeld)
             {
-                ThrowItem(heldItem as Throwable, statManager.ThrowForce);
+                ThrowItem(throwable, statManager.ThrowForce);
             }
 
             return;
@@ -118,7 +142,49 @@ public class PlayerActionManager : MonoBehaviour
     //   - Let go of picked up object
     public void OnSecondaryAction(InputAction.CallbackContext _context)
     {
+        UpdateRayOriginAndDirection();
 
+        bool nothingFound =
+            !Physics.Raycast(
+                ray,
+                out RaycastHit info,
+                statManager.PickupReach
+            );
+        Transform itemTransform = info.transform;
+
+        if (nothingFound || itemTransform == null)
+        {
+            return;
+        }
+
+        Item item = itemTransform.GetComponent<Item>();
+
+        inventory.SetCurrentItem(item);
+
+        // When looking at a gun
+        if (item is Gun)
+        {
+            (item as Gun).SetIsAiming(_context.performed);
+            return;
+        }
+
+        // When looking at any other item
+        if (item is Holdable)
+        {
+            if (_context.started)
+            {
+                Holdable throwable = item as Holdable;
+
+                if (!throwable.IsHeld)
+                {
+                    PickupItem(throwable);
+                }
+                else
+                {
+                    DropItem(throwable);
+                }
+            }
+        }
     }
 
     public void OnInteract(InputAction.CallbackContext _context)

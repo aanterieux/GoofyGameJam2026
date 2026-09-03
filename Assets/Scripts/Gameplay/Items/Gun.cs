@@ -32,12 +32,23 @@ public class Gun : Item
         }
     }
 
+
+    public void SetIsAiming(bool _isAiming)
+    {
+        Color colour =
+            (_isAiming)
+                ? Color.green
+                : Color.red;
+        string textColour = "<color=" + colour.ToString() + ">";
+
+        Debug.Log(textColour + "isAiming" + "</color>");
+    }
+
     public void StartShooting()
     {
         shootTimer = shootCooldown;
         isShooting = true;
     }
-
     public void StopShooting()
     {
         isShooting = false;

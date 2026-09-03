@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 8719869360792039732}
   - component: {fileID: 5723387327527656637}
   - component: {fileID: 4158627323520214103}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Zombie
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -141,7 +141,7 @@ NavMeshAgent:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5235993590068318139}
-  m_Enabled: 1
+  m_Enabled: 0
   m_AgentTypeID: -1372625422
   m_Radius: 1
   m_Speed: 3
