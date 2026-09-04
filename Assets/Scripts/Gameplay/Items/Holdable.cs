@@ -5,26 +5,29 @@ public class Holdable : Item
 {
     private Rigidbody rb = null;
     private Transform holder = null;
-    private new Collider collider = null;
+    private Collider selfCollider = null;
     private float distanceWithHolder = 0f;
     private bool isHeld = false;
+
+    protected Transform hitTransform_ = null;
 
     public bool IsHeld
     {
         get => isHeld;
     }
 
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
 
-        if (!collider)
+        if (!selfCollider)
         {
-            collider = GetComponent<Collider>();
+            selfCollider = GetComponent<Collider>();
         }
 
-        base.SetCurrentHitboxValuesAsDefault(collider);
-        base.AdjustColliderHitbox(collider);
+        base.SetCurrentHitboxValuesAsDefault(selfCollider);
+        base.AdjustColliderHitbox(selfCollider);
     }
 
     private void Update()
@@ -39,19 +42,36 @@ public class Holdable : Item
             + distanceWithHolder * holder.forward;
     }
 
-    private new void OnValidate()
+    protected new void OnValidate()
     {
         base.OnValidate();
 
-        if (base.HitboxAdjustmentTrigger)
+        if (base.HitboxAdjustmentTrigger_)
         {
-            if (!collider)
+            if (!selfCollider)
             {
-                collider = GetComponent<Collider>();
+                selfCollider = GetComponent<Collider>();
             }
 
-            base.AdjustColliderHitbox(collider);
+            base.AdjustColliderHitbox(selfCollider);
         }
+    }
+
+    private void OnCollisionEnter(Collision _collision)
+    {
+        Transform collisionTransform = _collision.transform;
+
+        if (isHeld || collisionTransform.GetComponent<Item>())
+        {
+            return;
+        }
+
+        hitTransform_ = collisionTransform;
+    }
+
+    private void OnCollisionExit(Collision _collision)
+    {
+        hitTransform_ = null;
     }
 
 

@@ -90,9 +90,9 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        //// When moving
-        //// Avoid moving faster diagonally
-        //movement = Vector3.ClampMagnitude(movement, 1f);
+        // When moving
+        // Avoid moving faster diagonally
+        movement = Vector3.ClampMagnitude(movement, 1f);
 
         float moveSpeed =
             baseMoveSpeed *

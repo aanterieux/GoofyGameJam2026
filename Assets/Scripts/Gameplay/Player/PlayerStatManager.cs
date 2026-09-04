@@ -3,22 +3,32 @@ using UnityEngine;
 public class PlayerStatManager : MonoBehaviour
 {
     [Header("- Health -")]
-    [SerializeField] private int health = 100;
-    [SerializeField] private int maxHealth = 100;
-    [SerializeField] private float regenerationDelay = 2f;
-    [SerializeField] private float regenerationDuration = 5f;
+    [SerializeField] [Min(0)]
+     private int health = 100;
+    [SerializeField] [Min(1)]
+     private int maxHealth = 100;
+    [SerializeField] [Min(0f)]
+     private float regenerationDelay = 2f;
+    [SerializeField] [Min(0f)]
+     private float regenerationDuration = 5f;
 
     [Header("- Attack -")]
-    [SerializeField] private float rangedAttackReach = 15f;
-    [SerializeField] private float meleeAttackReach = 0.75f;
-    [SerializeField] private float meleeAttackCooldown = 0.5f;
-    [SerializeField] private int meleeAttackDamage = 2;
+    [SerializeField] [Min(1.5f)]
+     private float rangedAttackReach = 15f;
+    [SerializeField] [Min(0.5f)]
+     private float meleeAttackReach = 0.75f;
+    [SerializeField] [Min(0f)]
+     private float meleeAttackCooldown = 0.5f;
+    [SerializeField] [Min(0)]
+     private int meleeAttackDamage = 2;
 
     [Header("- Misc -")]
-    [SerializeField] private float pickupReach = 5f;
-    [SerializeField] private float throwForce = 10f;
+    [SerializeField] [Min(0f)]
+     private float pickupReach = 5f;
+    [SerializeField] [Min(0f)]
+     private float throwForce = 10f;
 
-    public float DistanceAttackReach
+    public float RangedAttackReach
     {
         get => rangedAttackReach;
     }
@@ -52,6 +62,14 @@ public class PlayerStatManager : MonoBehaviour
         if (zombie && !zombie.IsAttacking)
         {
             zombie.TriggerAttack();
+        }
+    }
+
+    private void OnValidate()
+    {
+        if (health > maxHealth) // <=> (maxHealth < health)
+        {
+            health = maxHealth;
         }
     }
 }

@@ -7,32 +7,53 @@ public class PlayerActionManager : MonoBehaviour
 
     private PlayerStatManager statManager = null;
     private PlayerInventory inventory = null;
+    private Zombie target = null;
     private Ray ray = new Ray();
     private float meleeAttackTimer = 0f;
     private float meleeAttackCooldown = 0f;
-    private float meleeAttackDamage = 0f;
+    private bool meleeAttackTrigger = false;
 
     private void Awake()
     {
         statManager = GetComponent<PlayerStatManager>();
         inventory = GetComponent<PlayerInventory>();
+
+        meleeAttackCooldown = statManager.MeleeAttackCooldown;
     }
 
     private void FixedUpdate()
     {
-        
+
     }
 
     private void Update()
     {
-        
+        if (meleeAttackTimer < meleeAttackCooldown)
+        {
+            meleeAttackTimer += Time.deltaTime;
+        }
+
+        if (meleeAttackTrigger &&
+            meleeAttackTimer >= meleeAttackCooldown)
+        {
+            if (target)
+            {
+                target.TakeDamage(statManager.MeleeAttackDamage);
+            }
+
+            meleeAttackTimer = 0f;
+            meleeAttackTrigger = false;
+        }
     }
 
 
     private void TriggerMeleeAttack()
     {
-        meleeAttackCooldown = statManager.MeleeAttackCooldown;
-        meleeAttackDamage = statManager.MeleeAttackDamage;
+        meleeAttackTrigger = true;
+    }
+    private void StopMeleeAttack()
+    {
+        meleeAttackTrigger = false;
     }
 
 
@@ -66,6 +87,18 @@ public class PlayerActionManager : MonoBehaviour
     }
 
 
+    private void OnDrawGizmos()
+    {
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(ray.origin, ray.origin + statManager.MeleeAttackReach * ray.direction);
+        Gizmos.color = Color.white;
+    }
+
     // Primary action:
     //   - Throw fists
     //   - Shoot
@@ -74,65 +107,84 @@ public class PlayerActionManager : MonoBehaviour
     {
         UpdateRayOriginAndDirection();
 
-        bool nothingFound =
-            !Physics.Raycast(
-                ray,
-                out RaycastHit info,
-                statManager.PickupReach
-            );
-        Transform itemTransform = info.transform;
+        float maxRayDistance = 0f;
+        Item currentItem = inventory.CurrentItem;
 
-        if (nothingFound || itemTransform == null)
+        switch (currentItem)
         {
-            return;
+            case null:
+                {
+                    maxRayDistance = statManager.MeleeAttackReach;
+                }
+                break;
+            default:
+                {
+                    maxRayDistance = statManager.RangedAttackReach;
+                }
+                break;
         }
 
-        Item item = itemTransform.GetComponent<Item>();
+        bool foundSomething = false;
+        Transform targetTransform = null;
 
-        // When not holding anything (bare hands)
-        if (item == null)
+        switch (currentItem)
         {
-            if (_context.started)
-            {
-                TriggerMeleeAttack();
-            }
+            case null:
+                {
+                    if (_context.performed)
+                    {
+                        foundSomething =
+                            Physics.Raycast(
+                                ray,
+                                out RaycastHit info,
+                                maxRayDistance
+                        );
 
-            return;
-        }
+                        if (foundSomething)
+                        {
+                            targetTransform = info.transform;
+                        }
 
-        // When holding a gun
-        if (item is Gun)
-        {
-            if (_context.performed)
-            {
-                (item as Gun).StartShooting();
-            }
+                        // When not holding anything (bare hands)
+                        if (currentItem == null)
+                        {
+                            if (targetTransform)
+                            {
+                                target = targetTransform.GetComponent<Zombie>();
+                            }
 
-            return;
-        }
+                            TriggerMeleeAttack();
+                        }
+                    }
+                    else if (_context.canceled)
+                    {
+                        target = null;
+                        StopMeleeAttack();
+                    }
+                }
+                break;
+            case Gun:
+                {
+                    if (_context.performed)
+                    {
+                        (currentItem as Gun).StartShooting();
+                    }
+                }
+                break;
+            case Holdable:
+                {
+                    Holdable holdable = (currentItem as Holdable);
 
-        // When holding a consumable object
-        if (item is Consumable)
-        {
-            if (_context.started)
-            {
-                ConsumeItem(item as Consumable);
-            }
-
-            return;
-        }
-
-        // When holding any other object
-        if (item is Holdable)
-        {
-            Holdable throwable = (item as Holdable);
-
-            if (_context.started && throwable.IsHeld)
-            {
-                ThrowItem(throwable, statManager.ThrowForce);
-            }
-
-            return;
+                    if (_context.started && holdable.IsHeld)
+                    {
+                        ThrowItem(holdable, statManager.ThrowForce);
+                    }
+                }
+                break;
+            default:
+                {
+                }
+                break;
         }
     }
 

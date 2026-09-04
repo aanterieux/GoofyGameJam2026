@@ -11,7 +11,7 @@ public class Item : MonoBehaviour
     private float hitboxFactorCpy = 0f;
     private bool hitboxAdjustmentTrigger = false;
 
-    protected bool HitboxAdjustmentTrigger
+    protected bool HitboxAdjustmentTrigger_
     {
         get => hitboxAdjustmentTrigger;
     }
