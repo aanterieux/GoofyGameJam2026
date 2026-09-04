@@ -28,6 +28,8 @@ public class PlayerStatManager : MonoBehaviour
     [SerializeField] [Min(0f)]
      private float throwForce = 10f;
 
+    private bool isDead = false;
+
     public float RangedAttackReach
     {
         get => rangedAttackReach;
@@ -71,5 +73,23 @@ public class PlayerStatManager : MonoBehaviour
         {
             health = maxHealth;
         }
+    }
+
+
+    public void TakeDamage(int _damage)
+    {
+        if (isDead)
+        {
+            return;
+        }
+
+        health -= _damage;
+
+        if (health <= 0)
+        {
+            isDead = true;
+        }
+
+        Debug.Log(health);
     }
 }

@@ -99,6 +99,7 @@ public class PlayerActionManager : MonoBehaviour
         Gizmos.color = Color.white;
     }
 
+
     // Primary action:
     //   - Throw fists
     //   - Shoot
