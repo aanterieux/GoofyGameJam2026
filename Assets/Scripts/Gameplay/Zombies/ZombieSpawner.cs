@@ -56,16 +56,26 @@ public class ZombieSpawner : MonoBehaviour
 
     private void SpawnZombie()
     {
+        Vector2 horizontalOffset;
         Vector3 selfPos = transform.position;
         Vector3 spawnPos;
         Zombie newZombie;
 
-        for (int i = 0; i < maxSpawnedZombies; ++i)
+        for (int i = 0; i < zombiesPerSpawn; ++i)
         {
+            horizontalOffset = spawnRadius * Random.insideUnitCircle;
+            spawnPos =
+                selfPos
+                + new Vector3(
+                    horizontalOffset.x,
+                    transform.position.y,
+                    horizontalOffset.y
+                );
+
             spawnPos = spawnRadius * Random.insideUnitSphere;
-            spawnPos.x += selfPos.x;
+            spawnPos.x += 0.1f * selfPos.x * (Random.Range(0, 2) == 0 ? 1f : -1f);
             spawnPos.y = transform.position.y;
-            spawnPos.z += selfPos.z;
+            spawnPos.z += 0.1f * selfPos.z * (Random.Range(0, 2) == 0 ? 1f : -1f);
 
             newZombie =
                 Instantiate(

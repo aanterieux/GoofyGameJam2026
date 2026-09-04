@@ -48,6 +48,7 @@ public class Zombie : MonoBehaviour
     private float[] effectsTimer = new float[EFFECT_COUNT];
     private bool[] hasEffect = new bool[EFFECT_COUNT];
     private float attackTimer = 0f;
+    private float baseMoveSpeed = 0f;
     private float destinationUpdateTimer = 0f;
     private bool isFrozenOrPowerless = false;
 
@@ -63,6 +64,8 @@ public class Zombie : MonoBehaviour
         capsule = GetComponent<CapsuleCollider>();
 
         VaryStatsAndSize();
+
+        baseMoveSpeed = agent.speed;
     }
 
     private void Start()
@@ -97,13 +100,11 @@ public class Zombie : MonoBehaviour
 
         int healthChange = Random.Range(-7, 16);
         float speedChange = Random.Range(-1.5f, 1.5f);
-        float angularSpeedChange = Random.Range(-15f, 45f);
         float cooldownChange = Random.Range(-0.05f, 0.05f);
         int damageChange = Random.Range(-5, 6);
 
         health += healthChange;
         agent.speed += speedChange;
-        agent.angularSpeed += angularSpeedChange;
         attackCooldown += cooldownChange;
         damage += damageChange;
 
@@ -111,8 +112,6 @@ public class Zombie : MonoBehaviour
             Mathf.InverseLerp(-7f, 15f, healthChange) * 2f - 1f;
         float speedStrength =
             Mathf.InverseLerp(-1.5f, 1.5f, speedChange) * 2f - 1f;
-        float angularSpeedStrength =
-            Mathf.InverseLerp(-15f, 45f, angularSpeedChange) * 2f - 1f;
         float cooldownStrength =
             Mathf.InverseLerp(0.1f, -0.1f, cooldownChange) * 2f - 1f;
         float damageStrength =
@@ -120,7 +119,6 @@ public class Zombie : MonoBehaviour
         float combatStrength = (
                 healthStrength +
                 speedStrength +
-                angularSpeedStrength +
                 cooldownStrength +
                 damageStrength
             ) / 5f;
@@ -225,7 +223,7 @@ public class Zombie : MonoBehaviour
 
         for (int i = 0; i < hasEffect.Length; ++i)
         {
-            if (hasEffect[i])
+            if (!hasEffect[i] || ((ZombieEffect)(i)) == ZombieEffect.NONE)
             {
                 continue;
             }
@@ -236,16 +234,23 @@ public class Zombie : MonoBehaviour
             {
                 hasEffect[i] = false;
                 effectsTimer[i] = 0f;
+
+                if (hasEffect[(int)(ZombieEffect.SLOWNESS)])
+                {
+                    agent.speed = baseMoveSpeed;
+                }
+
                 return;
             }
         }
 
         if (hasEffect[(int)(ZombieEffect.SLOWNESS)])
         {
-            int slownessIndex = (int)(ZombieEffect.SLOWNESS);
+            float normalisedSlowness =
+                1f -
+                0.01f * effectsStrength[(int)(ZombieEffect.SLOWNESS)];
 
-            agent.speed *= effectsStrength[slownessIndex];
-            agent.angularSpeed *= effectsStrength[slownessIndex];
+            agent.speed = baseMoveSpeed * normalisedSlowness;
         }
     }
 

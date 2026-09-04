@@ -45,6 +45,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZombieSpawner
   zombiePrefab: {fileID: 5235993590068318139, guid: 6ebecdba782d2b74db5ea1b9069610cc, type: 3}
+  maxSpawnedZombies: 10
+  zombiesPerSpawn: 1
   spawnWaitingTime: 5
-  spawnRadius: 3
-  canSpawn: 1
+  spawnRadius: 1.75
+  isActive: 1

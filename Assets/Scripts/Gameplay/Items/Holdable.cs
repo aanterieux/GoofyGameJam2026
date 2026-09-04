@@ -4,7 +4,7 @@ using UnityEngine;
 public class Holdable : Item
 {
     [SerializeField] [Min(0)]
-    private int damageOnHit = 1;
+    private int baseDamageOnHit = 1;
 
     private Rigidbody rb = null;
     private Transform holder = null;
@@ -84,7 +84,7 @@ public class Holdable : Item
             return;
         }
 
-        zombie.TakeDamage(damageOnHit);
+        zombie.TakeDamage(baseDamageOnHit);
     }
 
     private void OnCollisionExit(Collision _collision)
