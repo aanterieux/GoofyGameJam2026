@@ -1,3 +1,4 @@
+# README
 # Pizza Panic
 The world ended, but the pizza orders still come.\
 Burn pizzas in the furnace, turn them into crispy ammunition, and survive the horde!
