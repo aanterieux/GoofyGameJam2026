@@ -133,7 +133,7 @@ MonoBehaviour:
   attackCooldown: 0.8
   damage: 15
   state: 1
-  destinationUpdateNbPerSecond: 16
+  destinationUpdateNbPerSecond: 8
 --- !u!195 &4158627323520214103
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -141,7 +141,7 @@ NavMeshAgent:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5235993590068318139}
-  m_Enabled: 0
+  m_Enabled: 1
   m_AgentTypeID: -1372625422
   m_Radius: 1
   m_Speed: 3
