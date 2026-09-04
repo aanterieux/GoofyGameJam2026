@@ -92,7 +92,12 @@ public class PlayerController : MonoBehaviour
 
         // When moving
         // Avoid moving faster diagonally
-        movement = Vector3.ClampMagnitude(movement, 1f);
+
+        if (!Mathf.Approximately(movement.x, 0f) &&
+            !Mathf.Approximately(movement.z, 0f))
+        {
+            movement = Vector3.ClampMagnitude(movement, 1f);
+        }
 
         float moveSpeed =
             baseMoveSpeed *

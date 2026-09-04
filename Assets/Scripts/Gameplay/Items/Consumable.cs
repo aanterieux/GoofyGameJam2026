@@ -2,23 +2,26 @@ using UnityEngine;
 
 public class Consumable : Holdable
 {
-    private Collider selfCollider = null;
+    private Collider consumableCollider = null;
 
     private void Awake()
     {
-        if (!selfCollider)
+        if (!consumableCollider)
         {
-            selfCollider = GetComponent<Collider>();
+            consumableCollider = GetComponent<Collider>();
         }
 
-        base.SetCurrentHitboxValuesAsDefault(selfCollider);
-        base.AdjustColliderHitbox(selfCollider);
+        base.SetCurrentHitboxValuesAsDefault(consumableCollider);
+        base.AdjustColliderHitbox(consumableCollider);
     }
 
-    private void Update()
+    private new void Update()
     {
-        if (hitTransform_)
+        base.Update();
+
+        if (isThrown_ && hitTransform_)
         {
+            isThrown_ = false;
             Destroy(gameObject);
         }
     }

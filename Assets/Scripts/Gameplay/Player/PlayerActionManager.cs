@@ -221,7 +221,7 @@ public class PlayerActionManager : MonoBehaviour
         }
 
         // When looking at any other item
-        if (item is Holdable)
+        if (item is Holdable || item is Consumable)
         {
             if (_context.started)
             {

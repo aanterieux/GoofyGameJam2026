@@ -3,13 +3,17 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class Holdable : Item
 {
+    [SerializeField] [Min(0)]
+    private int damageOnHit = 1;
+
     private Rigidbody rb = null;
     private Transform holder = null;
-    private Collider selfCollider = null;
-    private float distanceWithHolder = 0f;
+    private Collider holdableCollider = null;
+    private float distanceWithHolder = 1f;
     private bool isHeld = false;
 
     protected Transform hitTransform_ = null;
+    protected bool isThrown_ = false;
 
     public bool IsHeld
     {
@@ -21,18 +25,18 @@ public class Holdable : Item
     {
         rb = GetComponent<Rigidbody>();
 
-        if (!selfCollider)
+        if (!holdableCollider)
         {
-            selfCollider = GetComponent<Collider>();
+            holdableCollider = GetComponent<Collider>();
         }
 
-        base.SetCurrentHitboxValuesAsDefault(selfCollider);
-        base.AdjustColliderHitbox(selfCollider);
+        base.SetCurrentHitboxValuesAsDefault(holdableCollider);
+        base.AdjustColliderHitbox(holdableCollider);
     }
 
-    private void Update()
+    protected void Update()
     {
-        if (!isHeld)
+        if (!IsHeld)
         {
             return;
         }
@@ -48,12 +52,12 @@ public class Holdable : Item
 
         if (base.HitboxAdjustmentTrigger_)
         {
-            if (!selfCollider)
+            if (!holdableCollider)
             {
-                selfCollider = GetComponent<Collider>();
+                holdableCollider = GetComponent<Collider>();
             }
 
-            base.AdjustColliderHitbox(selfCollider);
+            base.AdjustColliderHitbox(holdableCollider);
         }
     }
 
@@ -67,6 +71,20 @@ public class Holdable : Item
         }
 
         hitTransform_ = collisionTransform;
+
+        if (!hitTransform_)
+        {
+            return;
+        }
+
+        Zombie zombie = hitTransform_.GetComponent<Zombie>();
+
+        if (!zombie)
+        {
+            return;
+        }
+
+        zombie.TakeDamage(damageOnHit);
     }
 
     private void OnCollisionExit(Collision _collision)
@@ -75,35 +93,55 @@ public class Holdable : Item
     }
 
 
+    private void ResetRigidbodyVelocity()
+    {
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+    }
+
+
     public void NotifyHold(Transform _holder)
     {
         holder = _holder;
-        distanceWithHolder = Vector3.Distance(transform.position, holder.position);
-        
-        rb.linearVelocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
+
+        if (holder)
+        {
+            distanceWithHolder = Vector3.Distance(transform.position, holder.position);
+        }
+
+        if (!rb)
+        {
+            rb = GetComponent<Rigidbody>();
+        }
+
+        ResetRigidbodyVelocity();
         rb.useGravity = false;
 
         isHeld = true;
+        isThrown_ = false;
     }
-    
+
     public void NotifyDrop()
     {
         holder = null;
         distanceWithHolder = 0f;
-
+        
+        ResetRigidbodyVelocity();
         rb.useGravity = true;
+
         isHeld = false;
+        isThrown_ = false;
     }
 
     public void NotifyThrow(float _throwForce)
     {
         isHeld = false;
+        isThrown_ = true;
         rb.useGravity = true;
 
         rb.AddForce(
             _throwForce * holder.forward
-            + 0.5f * _throwForce * Vector3.up,
+            + 0.33f * _throwForce * Vector3.up,
             ForceMode.VelocityChange
         );
     }
