@@ -81,7 +81,10 @@ public class Gun : Item
         }
     }
 
-
+    public void GiveAmmos(int _ammoNb)
+    {
+        remainingAmmos += _ammoNb;
+    }
 
     private void Shoot()
     {

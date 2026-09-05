@@ -197,6 +197,11 @@ public class Zombie : MonoBehaviour
                             origin.NotifyZombieDeath();
                         }
 
+                        Gun gun = playerTransform
+                            .GetComponent<PlayerInventory>()
+                            .CurrentItem as Gun;
+                        gun.GiveAmmos(3);
+
                         Destroy(gameObject);
                     }
                 }

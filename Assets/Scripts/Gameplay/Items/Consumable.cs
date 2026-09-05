@@ -9,8 +9,10 @@ public class Consumable : Holdable
         MEXICAN_SAUCE
     }
 
+    [SerializeField] private AudioSource mexicanSauceMusic = null;
+    [SerializeField] private ConsumableType type = ConsumableType.CHEESE_SAUCE;
+
     private Collider consumableCollider = null;
-    private ConsumableType type = ConsumableType.CHEESE_SAUCE;
 
     private void Awake()
     {
@@ -29,6 +31,14 @@ public class Consumable : Holdable
 
         if (isThrown_ && hitTransform_)
         {
+            if (type == ConsumableType.MEXICAN_SAUCE)
+            {
+                if (mexicanSauceMusic)
+                {
+                    mexicanSauceMusic.Play();
+                }
+            }
+
             isThrown_ = false;
 
             Zombie zombie = hitTransform_.GetComponent<Zombie>();
@@ -50,7 +60,7 @@ public class Consumable : Holdable
                         break;
                     case ConsumableType.MEXICAN_SAUCE:
                         {
-
+                            
                         }
                         break;
                     default:
