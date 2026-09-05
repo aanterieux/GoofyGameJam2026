@@ -77,16 +77,7 @@ public class PlayerController : MonoBehaviour
         if (Mathf.Approximately(movement.x, 0f) &&
             Mathf.Approximately(movement.z, 0f))
         {
-            // Apply drag horizontally only
-            Vector3 linearVel = rb.linearVelocity;
-            rb.AddForce(
-                new Vector3(
-                    -(linearVel.x * deceleration),
-                    0f,
-                    -(linearVel.z * deceleration)
-                )
-            );
-
+            Decelerate();
             return;
         }
 
@@ -113,6 +104,19 @@ public class PlayerController : MonoBehaviour
         velocity.z = movementDirection.z;
 
         rb.linearVelocity = velocity;
+    }
+
+    private void Decelerate()
+    {
+        // Apply horizontal drag
+        Vector3 linearVel = rb.linearVelocity;
+        rb.AddForce(
+            new Vector3(
+                -(linearVel.x * deceleration),
+                0f,
+                -(linearVel.z * deceleration)
+            )
+        );
     }
 
     private void CheckGrounding()

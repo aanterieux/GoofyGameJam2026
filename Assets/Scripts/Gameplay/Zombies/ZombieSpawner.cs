@@ -72,11 +72,6 @@ public class ZombieSpawner : MonoBehaviour
                     horizontalOffset.y
                 );
 
-            spawnPos = spawnRadius * Random.insideUnitSphere;
-            spawnPos.x += 0.1f * selfPos.x * (Random.Range(0, 2) == 0 ? 1f : -1f);
-            spawnPos.y = transform.position.y;
-            spawnPos.z += 0.1f * selfPos.z * (Random.Range(0, 2) == 0 ? 1f : -1f);
-
             newZombie =
                 Instantiate(
                     zombiePrefab,

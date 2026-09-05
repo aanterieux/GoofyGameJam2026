@@ -79,6 +79,12 @@ public class PlayerActionManager : MonoBehaviour
         _throwableItem.NotifyThrow(_throwForce);
     }
 
+    private void EquipGun(Gun _gunToEquip)
+    {
+        inventory.SetCurrentItem(_gunToEquip);
+        _gunToEquip.OnEquip(camTransform);
+    }
+
 
     private void UpdateRayOriginAndDirection()
     {
@@ -112,7 +118,6 @@ public class PlayerActionManager : MonoBehaviour
                 break;
         }
 
-        bool foundSomething = false;
         Transform targetTransform = null;
 
         switch (currentItem)
@@ -121,7 +126,7 @@ public class PlayerActionManager : MonoBehaviour
                 {
                     if (_context.performed)
                     {
-                        foundSomething =
+                        bool foundSomething =
                             Physics.Raycast(
                                 ray,
                                 out RaycastHit info,
@@ -131,18 +136,14 @@ public class PlayerActionManager : MonoBehaviour
                         if (foundSomething)
                         {
                             targetTransform = info.transform;
-                        }
 
-                        // When not holding anything (bare hands)
-                        if (currentItem == null)
-                        {
                             if (targetTransform)
                             {
                                 target = targetTransform.GetComponent<Zombie>();
                             }
-
-                            TriggerMeleeAttack();
                         }
+
+                        TriggerMeleeAttack();
                     }
                     else if (_context.canceled)
                     {
@@ -153,13 +154,18 @@ public class PlayerActionManager : MonoBehaviour
                 break;
             case Gun:
                 {
-                    if (_context.performed)
+                    Gun gun = (currentItem as Gun);
+
+                    if (_context.started)
                     {
-                        (currentItem as Gun).StartShooting(
+                        gun.StartShooting(
                             statManager.RangedAttackReach,
-                            camTransform.position,
-                            camTransform.forward
+                            camTransform
                         );
+                    }
+                    else if (_context.canceled)
+                    {
+                        gun.StopShooting();
                     }
                 }
                 break;
@@ -186,6 +192,11 @@ public class PlayerActionManager : MonoBehaviour
     //   - Let go of picked up object
     public void OnSecondaryAction(InputAction.CallbackContext _context)
     {
+        if (!_context.started)
+        {
+            return;
+        }
+
         UpdateRayOriginAndDirection();
 
         bool nothingFound =
@@ -203,12 +214,10 @@ public class PlayerActionManager : MonoBehaviour
 
         Item item = itemTransform.GetComponent<Item>();
 
-        inventory.SetCurrentItem(item);
-
         // When looking at a gun
         if (item is Gun)
         {
-            (item as Gun).SetIsAiming(_context.performed);
+            EquipGun(item as Gun);
             return;
         }
 

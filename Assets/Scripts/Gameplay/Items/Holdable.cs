@@ -3,6 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class Holdable : Item
 {
+    [Header("-- Holdable --")]
     [SerializeField] [Min(0)]
     private int baseDamageOnHit = 1;
 

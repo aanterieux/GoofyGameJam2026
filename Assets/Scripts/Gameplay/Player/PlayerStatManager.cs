@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,8 +26,11 @@ public class PlayerStatManager : MonoBehaviour
     [SerializeField] [Min(0)]
      private int meleeAttackDamage = 2;
 
-    [Header("- Misc -")]
+    [Header("- UI- ")]
     [SerializeField] private Image damageOverlay = null;
+    [SerializeField] private TextMeshProUGUI healthTextValue = null;
+
+    [Header("- Misc -")]
     [SerializeField] [Min(0f)]
      private float pickupReach = 5f;
     [SerializeField] [Min(0f)]
@@ -89,10 +93,9 @@ public class PlayerStatManager : MonoBehaviour
             RegenerateHealth();
         }
 
-        if (healthCpy != health &&
-            damageOverlay)
+        if (healthCpy != health)
         {
-            AdaptDamageOverlayAlpha();
+            TryAdaptDamageOverlayAlpha();
             healthCpy = health;
         }
     }
@@ -121,6 +124,7 @@ public class PlayerStatManager : MonoBehaviour
         else if (healthBuffer != health)
         {
             healthBuffer = health;
+            TryAdaptHealthText();
         }
 
         if (maxHealth < health)
@@ -157,13 +161,36 @@ public class PlayerStatManager : MonoBehaviour
         }
 
         healthBuffer = health;
+
+        TryAdaptHealthText();
     }
 
-    private void AdaptDamageOverlayAlpha()
+    private void TryAdaptDamageOverlayAlpha()
     {
+        if (!damageOverlay)
+        {
+            return;
+        }
+
         Color overlayColour = damageOverlay.color;
         overlayColour.a = (1f - (float)(health) / maxHealth);
         damageOverlay.color = overlayColour;
+    }
+
+    private void TryAdaptHealthText()
+    {
+        if (!healthTextValue)
+        {
+            return;
+        }
+
+        float percentage = health / (float)(maxHealth);
+        Color textColour = Color.black;
+        textColour.r = 1f - percentage;
+        textColour.g = percentage;
+
+        healthTextValue.text = health.ToString();
+        healthTextValue.color = textColour;
     }
 
 
@@ -183,5 +210,7 @@ public class PlayerStatManager : MonoBehaviour
         }
 
         healthBuffer = health;
+
+        TryAdaptHealthText();
     }
 }

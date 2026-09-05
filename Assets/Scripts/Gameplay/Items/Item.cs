@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class Item : MonoBehaviour
 {
+    [Header("-- Item --")]
     [SerializeField] [Min(0.01f)]
     private float hitboxFactor = 1.25f;
 

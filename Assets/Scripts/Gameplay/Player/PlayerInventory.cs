@@ -9,8 +9,8 @@ public class PlayerInventory : MonoBehaviour
         get => currentItem;
     }
 
-    public void SetCurrentItem(Item _newItem)
+    public void SetCurrentItem(Item _item)
     {
-        currentItem = _newItem;
+        currentItem = _item;
     }
 }

@@ -66,6 +66,16 @@ public class Zombie : MonoBehaviour
         VaryStatsAndSize();
 
         baseMoveSpeed = agent.speed;
+
+        if (health <= 0)
+        {
+            state = ZombieState.DEAD;
+        }
+
+        if (state == ZombieState.DEAD)
+        {
+            health = 0;
+        }
     }
 
     private void Start()
@@ -132,11 +142,6 @@ public class Zombie : MonoBehaviour
 
     private void ManageStates()
     {
-        if (!agent || !agent.isOnNavMesh)
-        {
-            return;
-        }
-
         switch (state)
         {
             case ZombieState.IDLE:
@@ -146,6 +151,11 @@ public class Zombie : MonoBehaviour
                 break;
             case ZombieState.CHASE:
                 {
+                    if (!agent || !agent.enabled || !agent.isOnNavMesh)
+                    {
+                        return;
+                    }
+
                     UpdateDestination();
 
                     if (GetDistanceToPlayer() <= distanceToAttack)
@@ -182,7 +192,11 @@ public class Zombie : MonoBehaviour
 
                     if (transform.position.y + 1f < -0.5f)
                     {
-                        origin.NotifyZombieDeath();
+                        if (origin)
+                        {
+                            origin.NotifyZombieDeath();
+                        }
+
                         Destroy(gameObject);
                     }
                 }
