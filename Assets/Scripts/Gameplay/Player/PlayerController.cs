@@ -106,11 +106,11 @@ public class PlayerController : MonoBehaviour
                     : 1f);
         // Convert move direction from local space to
         // global space for accurate Rigidbody movement
-        Vector3 movementVelocity =
+        Vector3 movementDirection =
             moveSpeed * transform.TransformDirection(movement);
         Vector3 velocity = rb.linearVelocity;
-        velocity.x = movementVelocity.x;
-        velocity.z = movementVelocity.z;
+        velocity.x = movementDirection.x;
+        velocity.z = movementDirection.z;
 
         rb.linearVelocity = velocity;
     }

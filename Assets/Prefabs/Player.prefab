@@ -326,14 +326,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStatManager
   health: 100
   maxHealth: 100
-  regenerationDelay: 2
-  regenerationDuration: 5
+  regenerationTriggerDelay: 2
+  regenerationsPerSec: 12
+  healthPerStep: 2
   rangedAttackReach: 15
-  meleeAttackReach: 0.75
+  meleeAttackReach: 0.8
   meleeAttackCooldown: 0.5
-  meleeAttackDamage: 2
+  meleeAttackDamage: 3
+  damageOverlay: {fileID: 0}
   pickupReach: 5
   throwForce: 10
+  isDead: 0
 --- !u!114 &9056599867820692192
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -465,7 +468,7 @@ MonoBehaviour:
   m_VolumeFrameworkUpdateModeOption: 2
   m_RenderPostProcessing: 1
   m_Antialiasing: 2
-  m_AntialiasingQuality: 2
+  m_AntialiasingQuality: 1
   m_StopNaN: 0
   m_Dithering: 0
   m_ClearDepth: 1

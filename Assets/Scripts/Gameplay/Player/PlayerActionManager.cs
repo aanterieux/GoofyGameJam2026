@@ -87,19 +87,6 @@ public class PlayerActionManager : MonoBehaviour
     }
 
 
-    private void OnDrawGizmos()
-    {
-        if (!Application.isPlaying)
-        {
-            return;
-        }
-
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(ray.origin, ray.origin + statManager.MeleeAttackReach * ray.direction);
-        Gizmos.color = Color.white;
-    }
-
-
     // Primary action:
     //   - Throw fists
     //   - Shoot
@@ -168,7 +155,11 @@ public class PlayerActionManager : MonoBehaviour
                 {
                     if (_context.performed)
                     {
-                        (currentItem as Gun).StartShooting();
+                        (currentItem as Gun).StartShooting(
+                            statManager.RangedAttackReach,
+                            camTransform.position,
+                            camTransform.forward
+                        );
                     }
                 }
                 break;

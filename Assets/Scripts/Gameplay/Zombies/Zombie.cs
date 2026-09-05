@@ -54,7 +54,7 @@ public class Zombie : MonoBehaviour
 
     public bool IsAttacking
     {
-        get => (state == ZombieState.ATTACK);
+        get => (state == ZombieState.ATTACK && attackTimer > 0f);
     }
 
 
@@ -75,7 +75,7 @@ public class Zombie : MonoBehaviour
 
     private void Update()
     {
-        ManageState();
+        ManageStates();
         ManageEffects();
     }
 
@@ -130,35 +130,11 @@ public class Zombie : MonoBehaviour
         capsule.transform.localScale *= statMean;
     }
 
-    private void ManageState()
+    private void ManageStates()
     {
         if (!agent || !agent.isOnNavMesh)
         {
             return;
-        }
-
-        if (state != ZombieState.DEAD)
-        {
-            if (health > maxHealth) // <=> (maxHealth < health)
-            {
-                health = maxHealth;
-            }
-
-            if (!isFrozenOrPowerless && state != ZombieState.ATTACK)
-            {
-                if (GetDistanceToPlayer() <= distanceToAttack)
-                {
-                    state = ZombieState.ATTACK;
-                }
-            }
-
-            if (state != ZombieState.IDLE)
-            {
-                if (GetDistanceToPlayer() <= distanceToChase)
-                {
-                    state = ZombieState.CHASE;
-                }
-            }
         }
 
         switch (state)
@@ -171,6 +147,11 @@ public class Zombie : MonoBehaviour
             case ZombieState.CHASE:
                 {
                     UpdateDestination();
+
+                    if (GetDistanceToPlayer() <= distanceToAttack)
+                    {
+                        state = ZombieState.ATTACK;
+                    }
                 }
                 break;
             case ZombieState.ATTACK:
@@ -195,12 +176,11 @@ public class Zombie : MonoBehaviour
             case ZombieState.DEAD:
                 {
                     agent.enabled = false;
+                    capsule.enabled = false;
 
-                    if (transform.position.y + 1f > -0.5f)
-                    {
-                        transform.Translate(Time.deltaTime * burySpeed * Vector3.down);
-                    }
-                    else
+                    transform.Translate(Time.deltaTime * burySpeed * Vector3.down);
+
+                    if (transform.position.y + 1f < -0.5f)
                     {
                         origin.NotifyZombieDeath();
                         Destroy(gameObject);

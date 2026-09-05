@@ -47,6 +47,6 @@ MonoBehaviour:
   zombiePrefab: {fileID: 5235993590068318139, guid: 6ebecdba782d2b74db5ea1b9069610cc, type: 3}
   maxSpawnedZombies: 10
   zombiesPerSpawn: 1
-  spawnWaitingTime: 5
-  spawnRadius: 1.75
+  spawnWaitingTime: 3.5
+  spawnRadius: 1.5
   isActive: 1

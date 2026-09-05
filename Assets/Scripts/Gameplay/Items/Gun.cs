@@ -3,11 +3,14 @@ using UnityEngine;
 public class Gun : Item
 {
     [SerializeField] private int shotsPerSecond = 4;
-    [SerializeField] private int ammosPerRound = 20;
+    [SerializeField] private int shotDamage = 5;
+    [SerializeField] private int ammosPerRound = 10;
     [SerializeField] private int roundNb = 3;
 
+    private Ray ray = new Ray();
     private float shootCooldown = 0f;
     private float shootTimer = 0f;
+    private float shotReach = 0f;
     private bool isShooting = false;
 
     private void Awake()
@@ -26,9 +29,36 @@ public class Gun : Item
 
         if (shootTimer >= shootCooldown)
         {
-            // Somehow link shoot logic to Player
-            // without linking Gun with Player
+            Shoot();
             shootTimer = 0f;
+        }
+    }
+
+
+    private void Shoot()
+    {
+        if (Physics.Raycast(
+            ray,
+            out RaycastHit info,
+            shotReach
+        ))
+        {
+            Transform target = info.transform;
+
+            if (!target)
+            {
+                return;
+            }
+
+            Zombie zombie = target.GetComponent<Zombie>();
+
+            if (!zombie)
+            {
+                return;
+            }
+
+            zombie.TakeDamage(shotDamage);
+            Debug.Log("<color=yellow>Pew !</color>");
         }
     }
 
@@ -44,8 +74,12 @@ public class Gun : Item
         Debug.Log(textColour + "isAiming" + "</color>");
     }
 
-    public void StartShooting()
+    public void StartShooting(float _shotReach, Vector3 _shotOrigin, Vector3 _shotDirection)
     {
+        ray.origin = _shotOrigin;
+        ray.direction = _shotDirection;
+
+        shotReach = _shotReach;
         shootTimer = shootCooldown;
         isShooting = true;
     }

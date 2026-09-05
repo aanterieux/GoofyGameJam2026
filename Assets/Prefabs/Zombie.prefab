@@ -133,7 +133,7 @@ MonoBehaviour:
   attackCooldown: 0.9
   damage: 15
   state: 1
-  destinationUpdatesPerSecond: 8
+  destinationUpdatesPerSecond: 12
   burySpeed: 1.5
   distanceToAttack: 1
   distanceToChase: 1.5
